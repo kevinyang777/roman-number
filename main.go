@@ -96,11 +96,9 @@ func calculateValues(values []*RomanContainer) int {
 					isSmallerBefore = true
 				} else {
 					acc += roman.Value
-					fmt.Println("tall")
 				}
 			} else {
 				acc += roman.Value
-				fmt.Println("mu")
 			}
 		} else {
 			isSmallerBefore = false
