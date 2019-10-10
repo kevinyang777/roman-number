@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 )
@@ -22,16 +24,32 @@ type RomanContainer struct {
 }
 
 type AlienDictionary struct {
-	glob int
-	prok int
-	pish int
-	tegj int
+	glob string
+	prok string
+	pish string
+	tegj string
 }
 
 func main() {
-	fmt.Println("start")
-	hasil := romanCalculator("MCMXLIV")
-	fmt.Println("hasil", *hasil)
+	fmt.Println("Start")
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Choose Calculator 1 = Roman , 2 = Alien: ")
+	input, _ := reader.ReadString('\n')
+	input = strings.Replace(input, "\n", "", -1)
+	if input == "1" {
+		fmt.Println("Input Code")
+		romanInput, _ := reader.ReadString('\n')
+		romanInput = strings.Replace(romanInput, "\n", "", -1)
+		res := romanCalculator(romanInput)
+		fmt.Println("Result", *res)
+	}
+	if input == "2" {
+		fmt.Println("Input Code")
+		alienInput, _ := reader.ReadString('\n')
+		alienInput = strings.Replace(alienInput, "\n", "", -1)
+		res := alienCalculator(alienInput)
+		fmt.Println("Result", *res)
+	}
 
 }
 
@@ -48,6 +66,15 @@ func initiateRomanDictionary() *RomanDictionary {
 	return &containerRomanDictionary
 }
 
+func initiateAlienDictionary() *AlienDictionary {
+	var containerAlienDictionary AlienDictionary
+	containerAlienDictionary.glob = "I"
+	containerAlienDictionary.pish = "X"
+	containerAlienDictionary.prok = "V"
+	containerAlienDictionary.tegj = "L"
+	return &containerAlienDictionary
+}
+
 // Recieve base string and return int pointer
 func romanCalculator(bs string) *int {
 	s := strings.Split(bs, "")
@@ -61,6 +88,41 @@ func romanCalculator(bs string) *int {
 	}
 	res := calculateValues(a)
 	return &res
+}
+
+func alienCalculator(bs string) *int {
+	s := strings.Split(bs, " ")
+	cr := ""
+	for _, code := range s {
+		rv := validateAndConvertAlienDictionary(&code)
+		cr += rv
+	}
+	res := romanCalculator(cr)
+	return res
+}
+
+func convertAlienToRoman(s *string) string {
+	rd := initiateAlienDictionary()
+	c := reflect.ValueOf(*rd)
+	f := reflect.Indirect(c).FieldByName(*s)
+	return string(f.String())
+}
+
+func validateAndConvertAlienDictionary(s *string) string {
+	// fmt.Println("bobo", len(*s))
+	v := []string{"glob", "prok", "pish", "tegj"}
+	checker := false
+	rv := ""
+	for _, validate := range v {
+		if *s == validate {
+			checker = true
+			rv += convertAlienToRoman(s)
+		}
+	}
+	if !checker {
+		panic("Not exist in alien dictionary")
+	}
+	return rv
 }
 
 // validate the string wether it exists in roman dictionary
