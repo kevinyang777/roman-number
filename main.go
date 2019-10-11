@@ -9,18 +9,18 @@ import (
 )
 
 type RomanDictionary struct {
-	I int
-	V int
-	X int
-	L int
-	C int
-	D int
-	M int
+	I float64
+	V float64
+	X float64
+	L float64
+	C float64
+	D float64
+	M float64
 }
 
 type RomanContainer struct {
 	RomanCode string
-	Value     int
+	Value     float64
 }
 
 type AlienDictionary struct {
@@ -40,15 +40,23 @@ func main() {
 		fmt.Println("Input Code")
 		romanInput, _ := reader.ReadString('\n')
 		romanInput = strings.Replace(romanInput, "\n", "", -1)
-		res := romanCalculator(romanInput)
-		fmt.Println("Result", *res)
+		res, err := romanCalculator(romanInput)
+		if err {
+			fmt.Println("Cannot Process Your Number")
+		} else {
+			fmt.Println("Result", *res)
+		}
 	}
 	if input == "2" {
 		fmt.Println("Input Code")
 		alienInput, _ := reader.ReadString('\n')
 		alienInput = strings.Replace(alienInput, "\n", "", -1)
-		res := alienCalculator(alienInput)
-		fmt.Println("Result", *res)
+		res, err := alienCalculator(alienInput)
+		if err {
+			fmt.Println("Cannot Process Your Number")
+		} else {
+			fmt.Println("Result", *res)
+		}
 	}
 
 }
@@ -76,57 +84,80 @@ func initiateAlienDictionary() *AlienDictionary {
 }
 
 // Recieve base string and return int pointer
-func romanCalculator(bs string) *int {
+func romanCalculator(bs string) (*float64, bool) {
 	s := strings.Split(bs, "")
 	a := []*RomanContainer{}
 	for _, code := range s {
-		validateRomanDictionary(&code)
+		err := validateRomanDictionary(&code)
+		if err {
+			return nil, true
+		}
 		var val RomanContainer
 		val.RomanCode = code
 		val.Value = getRomanValue(&code)
 		a = append(a, &val)
+
 	}
 	res := calculateValues(a)
-	return &res
+	return &res, false
 }
 
-func alienCalculator(bs string) *int {
+func alienCalculator(bs string) (*float64, bool) {
 	s := strings.Split(bs, " ")
 	cr := ""
 	for _, code := range s {
-		rv := validateAndConvertAlienDictionary(&code)
+		rv, err := validateAndConvertAlienDictionary(&code)
+		if err {
+			return nil, true
+		}
 		cr += rv
 	}
-	res := romanCalculator(cr)
-	return res
+	res, err := romanCalculator(cr)
+	if err {
+		fmt.Println("Cannot Process Your Number")
+	}
+	return res, false
 }
 
-func convertAlienToRoman(s *string) string {
+func convertAlienToRoman(s *string) (string, bool) {
 	rd := initiateAlienDictionary()
 	c := reflect.ValueOf(*rd)
 	f := reflect.Indirect(c).FieldByName(*s)
-	return string(f.String())
+	return string(f.String()), false
 }
 
-func validateAndConvertAlienDictionary(s *string) string {
-	// fmt.Println("bobo", len(*s))
+func validateAndConvertAlienDictionary(s *string) (r string, err bool) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = true
+		}
+	}()
 	v := []string{"glob", "prok", "pish", "tegj"}
 	checker := false
 	rv := ""
 	for _, validate := range v {
 		if *s == validate {
 			checker = true
-			rv += convertAlienToRoman(s)
+			num, err := convertAlienToRoman(s)
+			if err {
+				return "", true
+			}
+			rv += num
 		}
 	}
 	if !checker {
 		panic("Not exist in alien dictionary")
 	}
-	return rv
+	return rv, false
 }
 
 // validate the string wether it exists in roman dictionary
-func validateRomanDictionary(s *string) {
+func validateRomanDictionary(s *string) (err bool) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = true
+		}
+	}()
 	v := []string{"I", "V", "X", "L", "C", "D", "M"}
 	checker := false
 	for _, validate := range v {
@@ -137,18 +168,23 @@ func validateRomanDictionary(s *string) {
 	if !checker {
 		panic("Not exist in roman dictionary")
 	}
+	err = false
+	return err
+}
+
+func validateRules(s *string) {
 }
 
 // get the value of the roman dictionary
-func getRomanValue(s *string) int {
+func getRomanValue(s *string) float64 {
 	rd := initiateRomanDictionary()
 	c := reflect.ValueOf(*rd)
 	f := reflect.Indirect(c).FieldByName(*s)
-	return int(f.Int())
+	return float64(f.Float())
 }
 
-func calculateValues(values []*RomanContainer) int {
-	acc := 0
+func calculateValues(values []*RomanContainer) float64 {
+	acc := 0.0
 	isSmallerBefore := false
 	for i, roman := range values {
 		if !isSmallerBefore {
