@@ -1,0 +1,15 @@
+Case: only the owner want to use the app
+- Just make the app in mobile phone, or something portable
+
+Case: multiple users < 1000
+- Make a web app or mobile app, then connect to the backend after hosted the app in a VPS, build and dockerize the golang app, and host it with supervisor
+
+Case: multiple users 1000 - 100000
+- Make a web app or mobile app, then connect to the backend after hosted the app in a VPS, build, dockerize the golang app, then create multiple instances of the app, create a gateway service then redirect them using consistent hasing function 
+
+Case: multiple users 100000 <
+- Make a web app or mobile app, then connect to the backend after hosted the app in a Kubernetes cluser ( GCP for easier setup, if it's still alive ), optionally can setup an architecture orchestration with terraform / ansimble etc, the process is build, dockerize the golang app, after that setup the kubernetes and automation file and make it to run auto scaling , after that enable the load balancer (ingress), we may need to refactor a lot of code (maybe make heartbeat function for each services or just use consistent hashing) 
+
+For mobile app we can use flutter, because it's cool
+
+For web development we can use reactJS, or nextJS if we dont want those hard webpack things ( and we get free SSR )

@@ -36,6 +36,8 @@ type RomanRules struct {
 	RelationRule []string
 }
 
+// This app will not utilize multicore / goroutines yet
+
 func main() {
 	fmt.Println("Start")
 	reader := bufio.NewReader(os.Stdin)
