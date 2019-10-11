@@ -30,6 +30,12 @@ type AlienDictionary struct {
 	tegj string
 }
 
+type RomanRules struct {
+	Word         string
+	AppearRule   int
+	RelationRule []string
+}
+
 func main() {
 	fmt.Println("Start")
 	reader := bufio.NewReader(os.Stdin)
@@ -83,6 +89,40 @@ func initiateAlienDictionary() *AlienDictionary {
 	return &containerAlienDictionary
 }
 
+func initRomanRules() []*RomanRules {
+	var allRomanRules []*RomanRules
+	var RomanRulesI RomanRules
+	RomanRulesI.Word = "I"
+	RomanRulesI.RelationRule = []string{"C", "D", "L", "M"}
+	RomanRulesI.AppearRule = 3
+	var RomanRulesX RomanRules
+	RomanRulesX.Word = "X"
+	RomanRulesX.RelationRule = []string{"V", "D", "I", "M"}
+	RomanRulesX.AppearRule = 3
+	var RomanRulesC RomanRules
+	RomanRulesC.Word = "C"
+	RomanRulesC.AppearRule = 3
+	RomanRulesC.RelationRule = []string{"I", "X", "L", "V"}
+	var RomanRulesM RomanRules
+	RomanRulesM.Word = "M"
+	RomanRulesM.AppearRule = 3
+	RomanRulesM.RelationRule = []string{"I", "X", "C", "D", "L", "V"}
+	var RomanRulesD RomanRules
+	RomanRulesD.Word = "D"
+	RomanRulesD.AppearRule = 1
+	RomanRulesD.RelationRule = []string{"I", "X", "C", "M", "L", "V"}
+	var RomanRulesL RomanRules
+	RomanRulesL.Word = "L"
+	RomanRulesL.AppearRule = 1
+	RomanRulesL.RelationRule = []string{"I", "X", "C", "D", "M", "V"}
+	var RomanRulesV RomanRules
+	RomanRulesV.Word = "V"
+	RomanRulesV.AppearRule = 1
+	RomanRulesV.RelationRule = []string{"I", "X", "C", "M", "L", "D"}
+	allRomanRules = append(allRomanRules, &RomanRulesI, &RomanRulesX, &RomanRulesC, &RomanRulesM, &RomanRulesD, &RomanRulesL, &RomanRulesV)
+	return allRomanRules
+}
+
 // Recieve base string and return int pointer
 func romanCalculator(bs string) (*float64, bool) {
 	s := strings.Split(bs, "")
@@ -97,6 +137,11 @@ func romanCalculator(bs string) (*float64, bool) {
 		val.Value = getRomanValue(&code)
 		a = append(a, &val)
 
+	}
+	err := validateRules(&s)
+	if err {
+		fmt.Println("Rule Error")
+		return nil, true
 	}
 	res := calculateValues(a)
 	return &res, false
@@ -172,7 +217,43 @@ func validateRomanDictionary(s *string) (err bool) {
 	return err
 }
 
-func validateRules(s *string) {
+func validateRules(s *[]string) (err bool) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = true
+		}
+	}()
+	allRomanRules := initRomanRules()
+	prvVal := ""
+	countVal := 0
+	for _, word := range *s {
+		if prvVal == word {
+			countVal++
+		} else {
+			countVal = 1
+		}
+		prvVal = word
+		for _, rules := range allRomanRules {
+			if rules.Word == word {
+				if rules.AppearRule < countVal {
+					fmt.Println("error1", rules.AppearRule, countVal)
+					panic("Appear Rule Exceeded")
+				}
+				relationChecker := false
+				for i, relation := range rules.RelationRule {
+					if prvVal == relation {
+						fmt.Println("error3", prvVal, relation, i)
+						relationChecker = true
+					}
+				}
+				if relationChecker {
+					fmt.Println("error2", prvVal, relationChecker)
+					panic("Invalid Roman Inserted")
+				}
+			}
+		}
+	}
+	return false
 }
 
 // get the value of the roman dictionary
