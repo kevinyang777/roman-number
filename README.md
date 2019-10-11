@@ -13,3 +13,7 @@ Runs the app in the terminal.
 ### `go test`
 
 Launches the test in main_test.go file.
+
+### `go build`
+
+Compiles the app.
