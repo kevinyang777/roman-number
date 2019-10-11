@@ -239,7 +239,7 @@ func validateRules(s *[]string) (err bool) {
 					panic("Appear Rule Exceeded")
 				}
 				relationChecker := false
-				for i, relation := range rules.RelationRule {
+				for _, relation := range rules.RelationRule {
 					if prvVal == relation {
 						relationChecker = true
 					}
