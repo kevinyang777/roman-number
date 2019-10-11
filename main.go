@@ -236,18 +236,15 @@ func validateRules(s *[]string) (err bool) {
 		for _, rules := range allRomanRules {
 			if rules.Word == word {
 				if rules.AppearRule < countVal {
-					fmt.Println("error1", rules.AppearRule, countVal)
 					panic("Appear Rule Exceeded")
 				}
 				relationChecker := false
 				for i, relation := range rules.RelationRule {
 					if prvVal == relation {
-						fmt.Println("error3", prvVal, relation, i)
 						relationChecker = true
 					}
 				}
 				if relationChecker {
-					fmt.Println("error2", prvVal, relationChecker)
 					panic("Invalid Roman Inserted")
 				}
 			}
